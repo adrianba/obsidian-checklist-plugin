@@ -34,11 +34,10 @@ describe('markdown render plugins', () => {
     expect(md.renderInline('==text==')).toBe('<mark>text</mark>')
   })
 
-  it('renders comments with the current stray brace quirk', () => {
+  it('renders %%...%% as an HTML comment', () => {
     const md = createRenderer()
 
-    // Known quirk: commentPlugin currently emits an extra `}` before `-->`.
-    expect(md.renderInline('%%note%%')).toBe('<!--note}-->')
+    expect(md.renderInline('%%note%%')).toBe('<!--note-->')
   })
 
   it('renders resolved wiki links with link metadata', () => {
