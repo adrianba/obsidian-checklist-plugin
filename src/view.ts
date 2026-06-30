@@ -124,6 +124,7 @@ export default class TodoListView extends ItemView {
       this.plugin.getSettingValue('showChecked'),
       this.plugin.getSettingValue('showAllTodos'),
       this.lastRerender,
+      this.plugin.getSettingValue('hideHtmlComments'),
     )
     for (const [file, todos] of todosForUpdatedFiles) {
       this.itemsByFile.set(file.path, todos)

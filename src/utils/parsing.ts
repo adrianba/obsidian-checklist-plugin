@@ -56,6 +56,19 @@ export const lineIsValidTodo = (line: string) => {
 }
 export const extractTextFromTodoLine = (line: string) =>
   /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S{1}.*)$/.exec(line)?.[4]
+
+/**
+ * Removes literal HTML comments (`<!-- ... -->`) from a string. Any whitespace
+ * runs created by the removal are collapsed to a single space and the result is
+ * trimmed, so spaces that already separated words are preserved while otherwise
+ * unnecessary whitespace (and comment-only text) is eliminated.
+ */
+export const stripHtmlComments = (text: string) =>
+  text
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+
 export const todoLineIsChecked = (line: string) =>
   /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(\S{1})\]/.test(line)
 export const getFileLabelFromName = (filename: string) =>

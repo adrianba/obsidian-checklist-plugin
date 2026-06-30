@@ -56,6 +56,22 @@ describe('formTodo', () => {
     expect(todo.rawHTML).toBe('<p>do thing</p>\n')
   })
 
+  it('hides HTML comments from rendered HTML when hideHtmlComments is on', () => {
+    const file = makeFileInfo({hideHtmlComments: true})
+    const todo = formTodo('- [ ] keep <!-- secret --> this', file, [], 0)
+
+    expect(todo.rawHTML).toBe('<p>keep this</p>\n')
+    expect(todo.originalText).toBe('keep <!-- secret --> this')
+  })
+
+  it('renders HTML comments as text when hideHtmlComments is off', () => {
+    const file = makeFileInfo()
+    const todo = formTodo('- [ ] keep <!-- secret --> this', file, [], 0)
+
+    expect(todo.rawHTML).toBe('<p>keep &lt;!-- secret --&gt; this</p>\n')
+    expect(todo.originalText).toBe('keep <!-- secret --> this')
+  })
+
   it('renders resolved wiki links on the same line as internal-link anchors', () => {
     const file = makeFileInfo()
     const todo = formTodo(

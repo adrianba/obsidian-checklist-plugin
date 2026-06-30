@@ -6,6 +6,7 @@ import type {GroupByType, LookAndFeel, SortDirection} from './_types'
 export interface TodoSettings {
   todoPageName: string
   showChecked: boolean
+  hideHtmlComments: boolean
   showAllTodos: boolean
   showOnlyActiveFile: boolean
   autoRefresh: boolean
@@ -23,6 +24,7 @@ export interface TodoSettings {
 export const DEFAULT_SETTINGS: TodoSettings = {
   todoPageName: 'todo',
   showChecked: false,
+  hideHtmlComments: false,
   showAllTodos: false,
   showOnlyActiveFile: false,
   autoRefresh: true,
@@ -82,6 +84,16 @@ export class TodoSettingTab extends PluginSettingTab {
         toggle.setValue(this.plugin.getSettingValue('showChecked'))
         toggle.onChange(async value => {
           await this.plugin.updateSettings({showChecked: value})
+        })
+      })
+
+    new Setting(this.containerEl)
+      .setName('Hide HTML Comments')
+      .setDesc('Hide text matching <!-- ... --> from the displayed task text')
+      .addToggle(toggle => {
+        toggle.setValue(this.plugin.getSettingValue('hideHtmlComments'))
+        toggle.onChange(async value => {
+          await this.plugin.updateSettings({hideHtmlComments: value})
         })
       })
 

@@ -13,6 +13,7 @@ import {
   removeTagFromText,
   retrieveTag,
   setLineTo,
+  stripHtmlComments,
   todoLineIsChecked,
 } from '../src/utils/parsing'
 
@@ -52,6 +53,35 @@ describe('parsing helpers', () => {
 
     it('returns undefined for non-todo lines', () => {
       expect(extractTextFromTodoLine('hello world')).toBeUndefined()
+    })
+  })
+
+  describe('stripHtmlComments', () => {
+    it('removes a comment between words and keeps a single space', () => {
+      expect(stripHtmlComments('a <!-- c --> b')).toBe('a b')
+    })
+
+    it('trims a leading or trailing comment', () => {
+      expect(stripHtmlComments('<!-- c --> text')).toBe('text')
+      expect(stripHtmlComments('text <!-- c -->')).toBe('text')
+    })
+
+    it('joins when the comment has no surrounding whitespace', () => {
+      expect(stripHtmlComments('a<!-- c -->b')).toBe('ab')
+    })
+
+    it('removes multiple comments in one line', () => {
+      expect(stripHtmlComments('one <!-- a --> two <!-- b --> three')).toBe(
+        'one two three',
+      )
+    })
+
+    it('reduces a comment-only string to an empty string', () => {
+      expect(stripHtmlComments('<!-- only -->')).toBe('')
+    })
+
+    it('leaves text without comments unchanged', () => {
+      expect(stripHtmlComments('plain task text')).toBe('plain task text')
     })
   })
 

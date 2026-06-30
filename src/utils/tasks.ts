@@ -19,6 +19,7 @@ import {
   mapLinkMeta,
   removeTagFromText,
   setLineTo,
+  stripHtmlComments,
   todoLineIsChecked,
 } from './helpers'
 
@@ -41,7 +42,9 @@ import type {TodoItem, TagMeta, FileInfo} from 'src/_types'
  * @param vault The Obsidian {@link Vault} object.
  * @param includeFiles The pattern of files to include in the search for todos.
  * @param showChecked Whether the user wants to show completed todos in the plugin's UI.
+ * @param showAllTodos Whether to parse the entire file when a tag is present.
  * @param lastRerender Timestamp of the last time we re-rendered the checklist.
+ * @param hideHtmlComments Whether to strip literal `<!-- ... -->` comments from displayed task text.
  * @returns A map containing each {@link TFile file} that was updated, and the {@link TodoItem todos} in that file.
  * If there are no todos in a file, that file will still be present in the map, but the value for its entry will be an
  * empty array. This is required to account for the case where a file that previously had todos no longer has any.
@@ -55,6 +58,7 @@ export const parseTodos = async (
   showChecked: boolean,
   showAllTodos: boolean,
   lastRerender: number,
+  hideHtmlComments = false,
 ): Promise<Map<TFile, TodoItem[]>> => {
   const includePattern = includeFiles.trim()
     ? includeFiles.trim().split('\n')
@@ -93,6 +97,7 @@ export const parseTodos = async (
           file,
           parseEntireFile,
           frontmatterTag: todoTags.length ? frontMatterTags[0] : undefined,
+          hideHtmlComments,
         }
       }),
   )
@@ -195,7 +200,10 @@ export const formTodo = (
     .map(link => ({filePath: link.link, linkName: link.displayText}))
   const linkMap = mapLinkMeta(relevantLinks)
   const rawText = extractTextFromTodoLine(line)
-  const tagStripped = removeTagFromText(rawText, tagMeta?.main)
+  const displayText = file.hideHtmlComments
+    ? stripHtmlComments(rawText)
+    : rawText
+  const tagStripped = removeTagFromText(displayText, tagMeta?.main)
   const md = new MD()
     .use(commentPlugin)
     .use(linkPlugin(linkMap))

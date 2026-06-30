@@ -44,6 +44,7 @@ export type FileInfo = {
   frontmatterTag: string
   file: TFile
   validTags: TagCache[]
+  hideHtmlComments?: boolean
 }
 
 export type TagMeta = {main: string; sub: string}

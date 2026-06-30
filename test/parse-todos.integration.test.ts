@@ -252,4 +252,29 @@ describe('parseTodos integration', () => {
     expect(result.has(file)).toBe(true)
     expect(result.get(file)).toEqual([])
   })
+
+  it('strips HTML comments from rendered HTML when hideHtmlComments is true', async () => {
+    const file = makeFile('comments.md')
+    const cache = makeCache({})
+    const vault = makeVault({
+      'comments.md': '- [ ] visible <!-- hidden --> text',
+    })
+
+    const result = await parseTodos(
+      [file],
+      ['*'],
+      cache,
+      vault,
+      '',
+      true,
+      false,
+      0,
+      true,
+    )
+
+    const todos = result.get(file) ?? []
+    expect(todos).toHaveLength(1)
+    expect(todos[0].rawHTML).toBe('<p>visible text</p>\n')
+    expect(todos[0].originalText).toBe('visible <!-- hidden --> text')
+  })
 })
