@@ -18,13 +18,3 @@ export const navToFile = async (
     app.workspace.getActiveViewOfType(MarkdownView).editor.setCursor(line)
   }
 }
-
-export const hoverFile = (event: MouseEvent, app: App, filePath: string) => {
-  const targetElement = event.currentTarget
-  const timeoutHandle = setTimeout(() => {
-    app.workspace.trigger('link-hover', {}, targetElement, filePath, filePath)
-  }, 800)
-  targetElement.addEventListener('mouseleave', () => {
-    clearTimeout(timeoutHandle)
-  })
-}

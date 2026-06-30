@@ -9,7 +9,6 @@ export type TodoItem = {
   mainTag?: string
   subTag?: string
   line: number
-  spacesIndented: number
   fileInfo: FileInfo
   originalText: string
   rawHTML: string
@@ -26,11 +25,11 @@ type BaseGroup = {
   groups?: TodoGroup[]
 }
 
-export type PageGroup = BaseGroup & {
+type PageGroup = BaseGroup & {
   type: 'page'
   pageName?: string
 }
-export type TagGroup = BaseGroup & {
+type TagGroup = BaseGroup & {
   type: 'tag'
   mainTag?: string
   subTags?: string

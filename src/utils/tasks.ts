@@ -13,7 +13,6 @@ import {
   getFileFromPath,
   getFileLabelFromName,
   getFrontmatterTags,
-  getIndentationSpacesFromTodoLine,
   getTagMeta,
   retrieveTag,
   lineIsValidTodo,
@@ -196,7 +195,6 @@ export const formTodo = (
     .map(link => ({filePath: link.link, linkName: link.displayText}))
   const linkMap = mapLinkMeta(relevantLinks)
   const rawText = extractTextFromTodoLine(line)
-  const spacesIndented = getIndentationSpacesFromTodoLine(line)
   const tagStripped = removeTagFromText(rawText, tagMeta?.main)
   const md = new MD()
     .use(commentPlugin)
@@ -213,13 +211,12 @@ export const formTodo = (
     fileCreatedTs: file.file.stat.ctime,
     rawHTML: md.render(tagStripped),
     line: lineNum,
-    spacesIndented,
     fileInfo: file,
     originalText: rawText,
   }
 }
 
-export const setTodoStatusAtLineTo = (
+const setTodoStatusAtLineTo = (
   fileLines: string[],
   line: number,
   setTo: boolean,

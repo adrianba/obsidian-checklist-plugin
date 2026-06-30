@@ -50,7 +50,6 @@ describe('formTodo', () => {
       mainTag: 'work',
       subTag: undefined,
       line: 3,
-      spacesIndented: 0,
       originalText: 'do #work thing',
       fileInfo: file,
     })

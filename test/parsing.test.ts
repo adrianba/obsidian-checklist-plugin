@@ -7,7 +7,6 @@ import {
   extractTextFromTodoLine,
   getAllLinesFromFile,
   getFileLabelFromName,
-  getIndentationSpacesFromTodoLine,
   getTagMeta,
   lineIsValidTodo,
   mapLinkMeta,
@@ -53,18 +52,6 @@ describe('parsing helpers', () => {
 
     it('returns undefined for non-todo lines', () => {
       expect(extractTextFromTodoLine('hello world')).toBeUndefined()
-    })
-  })
-
-  describe('getIndentationSpacesFromTodoLine', () => {
-    it('returns leading whitespace count for regular todo lines', () => {
-      expect(getIndentationSpacesFromTodoLine('- [ ] x')).toBe(0)
-      expect(getIndentationSpacesFromTodoLine('  - [ ] x')).toBe(2)
-      expect(getIndentationSpacesFromTodoLine('    - [ ] x')).toBe(4)
-    })
-
-    it('returns 0 for blockquoted todos because > is not whitespace', () => {
-      expect(getIndentationSpacesFromTodoLine('> - [ ] x')).toBe(0)
     })
   })
 

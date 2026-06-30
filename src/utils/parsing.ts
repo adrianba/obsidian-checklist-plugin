@@ -8,8 +8,6 @@ import type {SortDirection, TagMeta, LinkMeta, KeysOfType} from 'src/_types'
  * be unit-tested without stubbing the `obsidian` module.
  */
 
-export const isMacOS = () => window.navigator.userAgent.includes('Macintosh')
-
 export const classifyString = (str: string) => {
   const sanitzedGroupName = (str ?? '').replace(/[^A-Za-z0-9]/g, '')
   const dasherizedGroupName = sanitzedGroupName.replace(
@@ -58,8 +56,6 @@ export const lineIsValidTodo = (line: string) => {
 }
 export const extractTextFromTodoLine = (line: string) =>
   /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S{1}.*)$/.exec(line)?.[4]
-export const getIndentationSpacesFromTodoLine = (line: string) =>
-  /^(\s*)([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S+)/.exec(line)?.[1]?.length ?? 0
 export const todoLineIsChecked = (line: string) =>
   /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(\S{1})\]/.test(line)
 export const getFileLabelFromName = (filename: string) =>
