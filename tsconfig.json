@@ -1,9 +1,16 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "target": "es2017",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
     "importHelpers": true,
+    "isolatedModules": true,
+    "sourceMap": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "types": ["svelte", "node"],
     "lib": ["ESNext", "DOM"]
   },

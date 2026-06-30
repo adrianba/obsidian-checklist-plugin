@@ -1,5 +1,5 @@
 import MD from 'markdown-it'
-import minimatch from 'minimatch'
+import {minimatch} from 'minimatch'
 
 import {commentPlugin} from '../plugins/comment'
 import {highlightPlugin} from '../plugins/highlight'
