@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-checklist-plugin",
-	"name": "Checklist",
-	"version": "2.2.14",
+	"id": "obsidian-checklist-plugin-adrianba",
+	"name": "Checklist (adrianba)",
+	"version": "2.2.15",
 	"minAppVersion": "0.14.5",
 	"description": "Combines checklists across pages into users sidebar",
-	"author": "delashum",
+	"author": "adrianba",
 	"isDesktopOnly": false
 }
