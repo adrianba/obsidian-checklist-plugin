@@ -125,7 +125,7 @@ export const toggleTodoItem = async (item: TodoItem, app: App) => {
   item.checked = !item.checked
 }
 
-const findAllTodosInFile = (file: FileInfo): TodoItem[] => {
+export const findAllTodosInFile = (file: FileInfo): TodoItem[] => {
   if (!file.parseEntireFile)
     return file.validTags.flatMap(tag => findAllTodosFromTagBlock(file, tag))
 
@@ -154,7 +154,7 @@ const findAllTodosInFile = (file: FileInfo): TodoItem[] => {
   return todos
 }
 
-const findAllTodosFromTagBlock = (file: FileInfo, tag: TagCache) => {
+export const findAllTodosFromTagBlock = (file: FileInfo, tag: TagCache) => {
   const fileContents = file.content
   const links = []
   if (file.cache?.links) {
@@ -184,7 +184,7 @@ const findAllTodosFromTagBlock = (file: FileInfo, tag: TagCache) => {
   return todos
 }
 
-const formTodo = (
+export const formTodo = (
   line: string,
   file: FileInfo,
   links: LinkCache[],
@@ -219,7 +219,7 @@ const formTodo = (
   }
 }
 
-const setTodoStatusAtLineTo = (
+export const setTodoStatusAtLineTo = (
   fileLines: string[],
   line: number,
   setTo: boolean,
