@@ -12,7 +12,7 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = process.argv[2] === 'production'
 
-const context = await esbuild.context({
+const options = {
   banner: {
     js: banner,
   },
@@ -59,11 +59,14 @@ const context = await esbuild.context({
     }),
   ],
   outfile: 'main.js',
-})
+}
 
-if (prod) {
-  await context.rebuild()
-  await context.dispose()
-} else {
-  await context.watch()
+try {
+  if (prod) await esbuild.build(options)
+  else {
+    const context = await esbuild.context(options)
+    await context.watch()
+  }
+} catch {
+  process.exit(1)
 }

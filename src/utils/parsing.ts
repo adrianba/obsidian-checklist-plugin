@@ -1,6 +1,4 @@
-import {LOCAL_SORT_OPT} from '../constants'
-
-import type {SortDirection, TagMeta, LinkMeta, KeysOfType} from 'src/_types'
+import type {TagMeta, LinkMeta} from 'src/_types'
 
 /**
  * Pure parsing/formatting helpers with no dependency on the Obsidian runtime.
@@ -23,7 +21,10 @@ export const classifyString = (str: string) => {
 export const removeTagFromText = (text: string, tag: string) => {
   if (!text) return ''
   if (!tag) return text.trim()
-  return text.replace(new RegExp(`\\s?\\#${tag}[^\\s]*`, 'g'), '').trim()
+  const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return text
+    .replace(new RegExp(`(^|\\s)#${escaped}(?:/[^\\s]+)?(?=\\s|$)`, 'gi'), '')
+    .trim()
 }
 
 export const getTagMeta = (tag: string): TagMeta => {
@@ -31,6 +32,17 @@ export const getTagMeta = (tag: string): TagMeta => {
   if (!tagMatch) return {main: null, sub: null}
   const [full, main, sub] = tagMatch
   return {main, sub}
+}
+
+export const matchesTodoTag = (tag: string, todoTags: string[]) => {
+  const normalized = tag.replace(/^#/, '').toLowerCase()
+  return todoTags.some(value => {
+    const configured = value.trim().replace(/^#/, '').toLowerCase()
+    return (
+      configured.length > 0 &&
+      (normalized === configured || normalized.startsWith(configured + '/'))
+    )
+  })
 }
 
 export const retrieveTag = (tagMeta: TagMeta): string => {
@@ -45,17 +57,17 @@ export const mapLinkMeta = (linkMeta: LinkMeta[]) => {
 
 export const setLineTo = (line: string, setTo: boolean) =>
   line.replace(
-    /^((\s|\>)*([\-\*]|[0-9]+\.)\s\[)([^\]]+)(\].*$)/,
+    /^((\s|\>)*([\-\*+]|[0-9]+\.)\s\[)([^\]]+)(\].*$)/,
     `$1${setTo ? 'x' : ' '}$5`,
   )
 
 export const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/)
 export const combineFileLines = (lines: string[]) => lines.join('\n')
 export const lineIsValidTodo = (line: string) => {
-  return /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}\S+/.test(line)
+  return /^(\s|\>)*([\-\*+]|[0-9]+\.)\s\[(.{1})\]\s{1,4}\S+/.test(line)
 }
 export const extractTextFromTodoLine = (line: string) =>
-  /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S{1}.*)$/.exec(line)?.[4]
+  /^(\s|\>)*([\-\*+]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S{1}.*)$/.exec(line)?.[4]
 
 /**
  * Removes literal HTML comments (`<!-- ... -->`) from a string. Any whitespace
@@ -70,41 +82,9 @@ export const stripHtmlComments = (text: string) =>
     .trim()
 
 export const todoLineIsChecked = (line: string) =>
-  /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(\S{1})\]/.test(line)
+  /^(\s|\>)*([\-\*+]|[0-9]+\.)\s\[(\S{1})\]/.test(line)
 export const getFileLabelFromName = (filename: string) =>
   /^(.+)\.md$/.exec(filename)?.[1]
-
-export const sortGenericItemsInplace = <
-  T,
-  NK extends KeysOfType<T, string>,
-  TK extends KeysOfType<T, number>,
->(
-  items: T[],
-  direction: SortDirection,
-  sortByNameKey: NK,
-  sortByTimeKey: TK,
-) => {
-  if (direction === 'a->z')
-    items.sort((a, b) =>
-      (a[sortByNameKey] as any).localeCompare(
-        b[sortByNameKey],
-        navigator.language,
-        LOCAL_SORT_OPT,
-      ),
-    )
-  if (direction === 'z->a')
-    items.sort((a, b) =>
-      (b[sortByNameKey] as any).localeCompare(
-        a[sortByNameKey],
-        navigator.language,
-        LOCAL_SORT_OPT,
-      ),
-    )
-  if (direction === 'new->old')
-    items.sort((a, b) => (b[sortByTimeKey] as any) - (a[sortByTimeKey] as any))
-  if (direction === 'old->new')
-    items.sort((a, b) => (a[sortByTimeKey] as any) - (b[sortByTimeKey] as any))
-}
 
 export const ensureMdExtension = (path: string) => {
   if (!/\.md$/.test(path)) return `${path}.md`

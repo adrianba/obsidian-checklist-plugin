@@ -1,6 +1,6 @@
 import {CachedMetadata, parseFrontMatterTags, TFile, Vault} from 'obsidian'
 
-import {getTagMeta} from './parsing'
+import {matchesTodoTag} from './parsing'
 
 /**
  * Obsidian-coupled helpers. Pure parsing helpers live in `./parsing` and are
@@ -16,7 +16,7 @@ export const getFrontmatterTags = (
     parseFrontMatterTags(cache?.frontmatter) ?? []
   if (todoTags.length > 0)
     return frontMatterTags.filter((tag: string) =>
-      todoTags.includes(getTagMeta(tag).main),
+      matchesTodoTag(tag, todoTags),
     )
   return frontMatterTags
 }

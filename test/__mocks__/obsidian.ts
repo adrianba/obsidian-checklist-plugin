@@ -52,6 +52,8 @@ export class Setting {}
 export class ItemView {}
 export class MarkdownView {}
 export class WorkspaceLeaf {}
+export class FuzzySuggestModal {}
+export class Notice {}
 export const Keymap = {
   isModEvent: () => false,
 }

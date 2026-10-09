@@ -16,7 +16,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('#work')).toBe(
-      '<a href="#work" data-type="link" class="tag" target="_blank" rel="noopener">#work</a>',
+      '<a href="#work" data-type="tag" class="tag" target="_blank" rel="noopener">#work</a>',
     )
   })
 
@@ -24,7 +24,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('#a&b"\'<x>')).toBe(
-      '<a href="#a&amp;b&quot;&#39;&lt;x&gt;" data-type="link" class="tag" target="_blank" rel="noopener">#a&amp;b&quot;&#39;&lt;x&gt;</a>',
+      '<a href="#a&amp;b&quot;&#39;&lt;x&gt;" data-type="tag" class="tag" target="_blank" rel="noopener">#a&amp;b&quot;&#39;&lt;x&gt;</a>',
     )
   })
 
@@ -44,7 +44,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('[[MyNote]]')).toBe(
-      '<a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a>',
+      '<a href="#" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a>',
     )
   })
 
@@ -52,7 +52,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('[[MyNote|Alias]]')).toBe(
-      '<a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
+      '<a href="#" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
     )
   })
 
@@ -60,7 +60,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('[[ MyNote | Alias ]]')).toBe(
-      '<a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
+      '<a href="#" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
     )
   })
 
@@ -70,11 +70,22 @@ describe('markdown render plugins', () => {
     expect(md.renderInline('[[Unknown]]')).toBe('[[Unknown]]')
   })
 
+  it('escapes normalized wiki-link attributes and labels', () => {
+    const target = 'A"&B'
+    const md = new MD().use(linkPlugin(new Map([
+      [target, {filePath: 'Folder/"<&>.md', linkName: 'unused'}],
+    ])))
+
+    expect(md.renderInline(`[[ ${target} | <Alias> ]]`)).toBe(
+      '<a href="#" data-href="A&quot;&amp;B" data-type="link" data-filepath="Folder/&quot;&lt;&amp;&gt;.md" class="internal-link">&lt;Alias&gt;</a>',
+    )
+  })
+
   it('renders mixed todo text through the full production plugin pipeline', () => {
     const md = createRenderer()
 
     expect(md.render('#work ==text== [[MyNote]]')).toBe(
-      '<p><a href="#work" data-type="link" class="tag" target="_blank" rel="noopener">#work</a> <mark>text</mark> <a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a></p>\n',
+      '<p><a href="#work" data-type="tag" class="tag" target="_blank" rel="noopener">#work</a> <mark>text</mark> <a href="#" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a></p>\n',
     )
   })
 })

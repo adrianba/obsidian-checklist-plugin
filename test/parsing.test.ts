@@ -10,6 +10,7 @@ import {
   getTagMeta,
   lineIsValidTodo,
   mapLinkMeta,
+  matchesTodoTag,
   removeTagFromText,
   retrieveTag,
   setLineTo,
@@ -22,6 +23,7 @@ describe('parsing helpers', () => {
     it('accepts supported bullets, states, indentation, and blockquotes', () => {
       expect(lineIsValidTodo('- [ ] task')).toBe(true)
       expect(lineIsValidTodo('* [x] task')).toBe(true)
+      expect(lineIsValidTodo('+ [ ] task')).toBe(true)
       expect(lineIsValidTodo('1. [/] task')).toBe(true)
       expect(lineIsValidTodo('  - [ ] nested')).toBe(true)
       expect(lineIsValidTodo('> - [ ] quoted')).toBe(true)
@@ -102,6 +104,7 @@ describe('parsing helpers', () => {
     it('unchecks a checked todo while preserving bullet type and text', () => {
       expect(setLineTo('* [x] keep this text', false)).toBe('* [ ] keep this text')
       expect(setLineTo('1. [x] keep this text', false)).toBe('1. [ ] keep this text')
+      expect(setLineTo('+ [ ] keep this text', true)).toBe('+ [x] keep this text')
     })
 
     it('preserves blockquote prefixes and toggles other checkbox states', () => {
@@ -121,6 +124,13 @@ describe('parsing helpers', () => {
       expect(removeTagFromText('before #work/sub after', 'work')).toBe('before after')
       expect(removeTagFromText('#work before #work/sub after ', 'work')).toBe('before after')
     })
+
+    it('escapes tag patterns and preserves sibling prefixes', () => {
+      expect(removeTagFromText('keep #workshop #WORK/sub text', 'work')).toBe(
+        'keep #workshop text',
+      )
+      expect(removeTagFromText('keep #a+b #aaab text', 'a+b')).toBe('keep #aaab text')
+    })
   })
 
   describe('tag metadata helpers', () => {
@@ -134,6 +144,12 @@ describe('parsing helpers', () => {
       expect(retrieveTag({main: 'main', sub: 'sub'})).toBe('main')
       expect(retrieveTag({main: null, sub: 'sub'})).toBe('sub')
       expect(retrieveTag({main: null, sub: null})).toBe('')
+    })
+
+    it('matches configured tags and descendants without sibling prefixes', () => {
+      expect(matchesTodoTag('#Work/Next/Today', [' #work/next '])).toBe(true)
+      expect(matchesTodoTag('#work/next-week', ['work/next'])).toBe(false)
+      expect(matchesTodoTag('#work', [''])).toBe(false)
     })
   })
 

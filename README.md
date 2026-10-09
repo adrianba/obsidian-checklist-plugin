@@ -1,46 +1,82 @@
-**LOOKING FOR ANOTHER MAINTAINER TO HELP OUT** There's quite a bit of work to do on this plugin still and i've been neglecting it because work is too busy. I would love some help, or at least someone who could approve PRs and triage issues. Send me an email at delashum@gmail.com if you're interested.
+# Checklist for Obsidian
 
-# obsidian-checklist-plugin
+This plugin brings checklists from across your notes into a single sidebar. Check things off, find the note they came from, and organize the list how you like.
 
-This plugin consolidates checklists from across files into a single view.
-
-![screenshot-main](https://raw.githubusercontent.com/delashum/obsidian-checklist-plugin/master/images/screenshot-two-files.png)
+![Checklist showing tasks from multiple notes beside the current note](images/screenshot-two-files.png)
 
 ## Usage
 
-After enabling this plugin, you will see the checklist appear in the right sidebar. If you do not you can run the `Checklist: Open View` command from the command palette to get it to appear.
+Install **Checklist** from Obsidian’s community plugins and enable it. Open the sidebar from the ribbon or run **Checklist: Show Checklist pane** from the command palette. Requires Obsidian 1.5.0 or later.
 
-By default block of checklist items you tag with `#todo` will appear in this sidebar.
+By default, blocks of checklist items tagged with `#todo` appear in the sidebar:
 
-You can complete checklist items by checking them off in your editor (e.g. `- [ ]` -> `- [x]`) or by clicking a checklist item in the sidebar which will update your `.md` file for you
+```markdown
+#todo
+- [ ] Review the sidebar
+- [ ] Write release notes
+```
 
-Use Tab to focus the sidebar controls. Press Enter or Space on the completion, group-collapse, or tag-settings buttons. Page titles also open their files with Enter or Space; focused task text and embedded wiki links open with Enter. Hold Ctrl (Cmd on macOS) while opening a page title, task, or wiki link to use Obsidian's modifier navigation.
+A standalone tag applies until the next blank line. You can also tag individual tasks, use nested tags like `#todo/next`, or put a tag in a note’s `tags` property to include the whole note.
+
+Check items off in your note or in the sidebar; both update the same Markdown file. Completed tasks stay visible for one second so you can uncheck an accidental click. Click the task text to jump to its source line.
+
+Use **All / Note** to switch scope, or search task text, note paths, and tags. Click an inline tag to search for it.
+
+Use Tab to focus sidebar controls. Press Enter or Space on buttons, or Space on task checkboxes. Group headings collapse or expand; the adjacent open-note button opens a page. Focused task text and embedded wiki links open with Enter. Hold Ctrl (Cmd on macOS) while opening a note, task, or wiki link to use Obsidian's modifier navigation.
 
 ## Configuration
 
-![screenshot-settings](https://raw.githubusercontent.com/delashum/obsidian-checklist-plugin/master/images/screenshot-settings.png)
+Open the sidebar’s **Display options** for everyday controls. Tag sources, file patterns, and integrations live in **Settings → Checklist**.
 
-**Tag name:** The default tag to lookup checklist items by is `#todo`, but may be changed to whatever you like
+<img src="images/screenshot-settings.png" alt="Display options for grouping, sorting, task visibility, completion delay, and folder filtering" width="320">
 
-**Show completed?:** By default the plugin will only show uncompleted tasks, and as tasks are completed they will filter out of the sidebar. You may choose to show all tasks
+**Grouping:** Group by Tag, Page, or Folder, or choose None for one list. Add a different sub-grouping if you want a second level. Click the arrow to collapse a group.
 
-![screenshot-completed](https://raw.githubusercontent.com/delashum/obsidian-checklist-plugin/master/images/screenshot-show-completed.png)
+**Sorting:** Sort by name, file creation time, or recent modification. Tasks can also follow their order in the note; tag groups can follow your configured tag order. **Groups** sorts both grouping levels.
 
-**Show All Todos In File?:** By default the plugin will only show tasks in the block that is tagged - changing this will show all tasks present in a file if the tag is present anywhere on the page.
+**Options:** Show sub-tasks, task counts, completed tasks, or source-note labels. **Show sub-tasks** includes children of tagged tasks and displays an expandable tree. Turn off **Delay completion** to hide completed tasks immediately.
 
-**Group by:** You can group by either file or tagname. If you choose to group by tag name they will appear in the order that they first appear in your files (or last depending on sort order)
+**Hide HTML Comments:** In **Settings → Checklist → Display**, enable this fork's opt-in setting to hide literal `<!-- ... -->` comments from displayed task text and accessible checkbox labels. It is off by default and preserves existing saved choices. Search still matches the original text, including comments; completing a task preserves its comments in the note. Obsidian `%%...%%` comments are rendered separately and do not depend on this setting.
 
-![screenshot-tags](https://raw.githubusercontent.com/delashum/obsidian-checklist-plugin/master/images/screenshot-sub-tag.png)
+**Included / excluded tags:** One per line, with or without `#`. `todo/next` matches that tag and its descendants, but not `todo/next-week`. Leave Included tags empty to show all tasks. Excluded tags hide matching tasks and blocks; an excluded property tag hides the whole note.
 
-**Sort order:** By default checklist items will appear in the order they appear in the file, with files ordered with the oldest at the top. This can be changed to show the newest files at the top.
+**Include all tasks in matching notes:** Include every task in a note containing a matching tag, rather than just its tagged tasks and blocks.
 
-## Glob File Matching
+**Limit to folder:** Enter a vault-relative folder to include it and its subfolders. Clear the field to show all folders. You can also right-click a folder in the file explorer to focus Checklist there.
 
-The "Include Files" setting uses Glob file matching. Specifically the plugin uses [minimatch](https://github.com/isaacs/minimatch) to match the file pattern - so any specific oddities will come from that plugin.
+Defaults keep tag grouping, newest-created ordering, and a flat task list. Existing preferences are preserved on upgrade; nested groups, sub-tasks, source notes, and Tasks integration are opt-in.
 
-Couple of common examples to help structure your glob:
+This fork adopts the upstream 3.x sidebar and theme-based styling. The previous Classic/Compact appearance setting is no longer used, and the pane opens through the ribbon or command rather than being created automatically on plugin load.
 
-- `!{_templates/**,_archive/**}` will include everything except for the two directories `_templates` and `_archive`.
-- `{Daily/**,Weekly/**}` will only include files in the `Daily` & `Weekly` directories
+## File patterns
 
-I recommend the [Digital Ocean Glob Tool](https://www.digitalocean.com/community/tools/glob) for figuring out how globs work - although the implementation is not identical to minimatch so there might be slight differences.
+Use one [minimatch](https://github.com/isaacs/minimatch) glob per line in **File patterns**. Positive patterns include files; `!` patterns exclude them. Leave empty to include every note.
+
+```text
+Projects/**
+Daily/**
+!Projects/Archive/**
+!Daily/Templates/**
+```
+
+With only exclusion patterns, everything else is included.
+
+## Tasks integration
+
+Enable **Complete with Tasks** to use the [Tasks plugin](https://github.com/obsidian-tasks-group/obsidian-tasks) for completion dates and recurring tasks. Requires Tasks 7.2 or later. This is optional and off by default; custom-status filtering is not supported.
+
+## Development
+
+Use Node 20.19+:
+
+```sh
+npm ci
+npm test
+npm run build
+```
+
+`npm run dev` watches source files. Copy `main.js`, `styles.css`, and `manifest.json` into a test vault’s `.obsidian/plugins/obsidian-checklist-plugin/` and reload Obsidian.
+
+`npm test` runs both the fork's Vitest suite (`npm run test:fork`) and the upstream Node regression suite (`npm run test:upstream`). `npm run test:watch` watches the Vitest tests.
+
+Thanks to [SeanYHan888](https://github.com/SeanYHan888) for the sub-task hierarchy work in [#213](https://github.com/delashum/obsidian-checklist-plugin/pull/213).

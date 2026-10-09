@@ -79,7 +79,9 @@ describe('parseTodos integration', () => {
       0,
     )
 
-    expect([...subdirOnly.keys()]).toEqual([subdirFile])
+    expect([...subdirOnly.keys()]).toEqual([rootFile, subdirFile])
+    expect(subdirOnly.get(rootFile)).toEqual([])
+    expect(todoTexts(subdirOnly.get(subdirFile) ?? [])).toEqual(['subdir task'])
     expect([...defaultInclude.keys()]).toEqual([rootFile, subdirFile])
   })
 
@@ -109,7 +111,8 @@ describe('parseTodos integration', () => {
       0,
     )
 
-    expect([...result.keys()]).toEqual([blockTagged, frontmatterTagged])
+    expect([...result.keys()]).toEqual([blockTagged, frontmatterTagged, untagged])
+    expect(result.get(untagged)).toEqual([])
     expect(todoTexts(result.get(blockTagged) ?? [])).toEqual(['work task'])
   })
 
@@ -269,6 +272,9 @@ describe('parseTodos integration', () => {
       true,
       false,
       0,
+      [],
+      undefined,
+      false,
       true,
     )
 

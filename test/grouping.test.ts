@@ -4,16 +4,26 @@ import {groupTodos} from '../src/utils/groups'
 
 import type {TodoItem, SortDirection} from '../src/_types'
 
+let nextLine = 0
 const todo = (overrides: Partial<TodoItem>): TodoItem =>
   ({
+    checked: false,
     filePath: 'notes/default.md',
+    fileName: 'default.md',
     fileLabel: 'Default',
+    fileModifiedTs: 1,
+    filterTags: ['work'],
+    sourceLine: '- [ ] default todo',
+    children: [],
+    line: nextLine++,
     mainTag: 'work',
     subTag: undefined,
     fileCreatedTs: 1,
     originalText: 'default todo',
+    displayText: 'default todo',
+    rawHTML: '<p>default todo</p>\n',
     ...overrides,
-  }) as TodoItem
+  })
 
 const group = (
   items: TodoItem[],
@@ -88,21 +98,21 @@ describe('groupTodos', () => {
       type: 'tag',
       mainTag: 'home',
       subTags: 'chores',
-      sortName: 'homechores',
+      sortName: '#home/chores',
       className: 'homechores',
     })
     expect(groups[1]).toMatchObject({
       type: 'tag',
       mainTag: 'work',
       subTags: undefined,
-      sortName: 'work0',
+      sortName: '#work',
       className: 'work',
     })
     expect(groups[2]).toMatchObject({
       type: 'tag',
       mainTag: 'work',
       subTags: 'urgent',
-      sortName: 'workurgent',
+      sortName: '#work/urgent',
       className: 'workurgent',
     })
     expect(groups[2].todos.map(t => t.originalText)).toEqual(['first', 'second'])
@@ -197,8 +207,8 @@ describe('groupTodos', () => {
 
     expect(pageGroups[0]).toMatchObject({id: 'alpha.md', type: 'page'})
     expect(pageGroups[0].groups?.map(g => ({id: g.id, type: g.type}))).toEqual([
-      {id: '#home', type: 'tag'},
-      {id: '#work/urgent', type: 'tag'},
+      {id: JSON.stringify(['alpha.md', 'tag', '#home']), type: 'tag'},
+      {id: JSON.stringify(['alpha.md', 'tag', '#work/urgent']), type: 'tag'},
     ])
     expect(pageGroups[0].groups?.[1].todos.map(t => t.originalText)).toEqual([
       'work urgent',
@@ -207,8 +217,8 @@ describe('groupTodos', () => {
     const tagGroups = group(items, 'tag', 'a->z', 'a->z', true, 'a->z')
     const workUrgent = tagGroups.find(g => g.id === '#work/urgent')
     expect(workUrgent?.groups?.map(g => ({id: g.id, type: g.type}))).toEqual([
-      {id: 'alpha.md', type: 'page'},
-      {id: 'beta.md', type: 'page'},
+      {id: JSON.stringify(['#work/urgent', 'page', 'alpha.md']), type: 'page'},
+      {id: JSON.stringify(['#work/urgent', 'page', 'beta.md']), type: 'page'},
     ])
   })
 

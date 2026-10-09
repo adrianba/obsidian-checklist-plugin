@@ -4,7 +4,7 @@ import type {LinkMeta} from 'src/_types'
 export const linkPlugin = (linkMap: Map<string, LinkMeta>) =>
   regexPlugin(/\[\[([^\]]+)\]\]/, (match: string[], utils: any) => {
     const content = match[1]
-    const [link, label] = content.trim().split('|').map((s) => s.trim())
+    const [link, label] = content.trim().split('|').map(s => s.trim())
     const linkItem = linkMap.get(link)
     let displayText = label ? label : linkItem ? linkItem.linkName : link
     if (label) {
@@ -15,7 +15,9 @@ export const linkPlugin = (linkMap: Map<string, LinkMeta>) =>
       displayText = link
     }
     if (!linkItem) return `[[${content}]]`
-    return `<a role="link" tabindex="0" data-href="${link}" data-type="link" data-filepath="${
-      linkItem.filePath
-    }" class="internal-link">${utils.escape(displayText)}</a>`
+    return `<a href="#" data-href="${utils.escape(
+      link,
+    )}" data-type="link" data-filepath="${utils.escape(
+      linkItem.filePath,
+    )}" class="internal-link">${utils.escape(displayText)}</a>`
   })
