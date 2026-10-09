@@ -5,7 +5,7 @@ import {ensureMdExtension, getFileFromPath} from './helpers'
 export const navToFile = async (
   app: App,
   path: string,
-  ev: MouseEvent,
+  ev: MouseEvent | KeyboardEvent,
   line?: number,
 ) => {
   path = ensureMdExtension(path)

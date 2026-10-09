@@ -15,18 +15,32 @@
     toggleTodoItem(item, app)
   }
 
-  const handleClick = (ev: MouseEvent, item?: TodoItem) => {
-    const target: HTMLElement = ev.target as any
-    if (target.tagName === "A") {
+  const handleClick = (ev: MouseEvent | KeyboardEvent, item: TodoItem) => {
+    const target = ev.target
+    if (!(target instanceof Element)) return
+    const anchor = target.closest("a")
+    if (anchor) {
       ev.stopPropagation()
-      if (target.dataset.type === "link") {
-        navToFile(app, target.dataset.filepath, ev, item?.line)
-      } else if (target.dataset.type === "tag") {
-        // goto tag
+      if (anchor.dataset.type === "link" && anchor.dataset.filepath) {
+        ev.preventDefault()
+        navToFile(app, anchor.dataset.filepath, ev, item.line)
       }
+    } else {
+      navToFile(app, item.filePath, ev, item.line)
     }
-    else {
-      navToFile(app, item.filePath, ev, item?.line)
+  }
+
+  const handleKeydown = (ev: KeyboardEvent) => {
+    if (ev.key !== "Enter") return
+    if (ev.target === ev.currentTarget) {
+      ev.preventDefault()
+      navToFile(app, item.filePath, ev, item.line)
+    } else if (ev.target instanceof Element) {
+      const anchor = ev.target.closest("a")
+      // Native links activate themselves; generated wiki links have no href.
+      if (anchor?.dataset.filepath && !anchor.hasAttribute("href")) {
+        handleClick(ev, item)
+      }
     }
   }
   $: {
@@ -36,6 +50,7 @@
 
 <li class={`${lookAndFeel}`}>
   <button
+    type="button"
     class="toggle"
     on:click={(ev) => {
       toggleItem(item)
@@ -44,7 +59,14 @@
   >
     <CheckCircle checked={item.checked} />
   </button>
-  <div bind:this={contentDiv} on:click={(ev) => handleClick(ev, item)} class="content" />
+  <div
+    bind:this={contentDiv}
+    on:click={(ev) => handleClick(ev, item)}
+    on:keydown={handleKeydown}
+    role="link"
+    tabindex="0"
+    class="content"
+  />
 </li>
 
 <style>
@@ -71,6 +93,11 @@
     padding: var(--checklist-contentPadding);
     flex: 1;
     font-size: var(--checklist-contentFontSize);
+  }
+  .content:focus-visible,
+  .content :global(a[role="link"]:focus-visible) {
+    outline: 2px solid var(--checklist-accentColor);
+    outline-offset: 2px;
   }
   .compact {
     bottom: var(--checklist-listItemMargin--compact);

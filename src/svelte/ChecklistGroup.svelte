@@ -19,24 +19,34 @@
 
 <section class="group {group.className}">
   <header class={`group-header ${group.type}`}>
-    <div class="title" on:click={clickTitle}>
-      {#if group.type === "page"}
+    {#if group.type === "page"}
+      <button type="button" class="title page-title" on:click={clickTitle}>
         {group.pageName}
-      {:else if group.mainTag}
-        <span class="tag-base">#</span>
-        <span class={group.subTags == null ? "tag-sub" : "tag-base"}
-          >{`${group.mainTag}${group.subTags != null ? "/" : ""}`}</span
-        >
-        {#if group.subTags != null}
-          <span class="tag-sub">{group.subTags}</span>
+      </button>
+    {:else}
+      <div class="title">
+        {#if group.mainTag}
+          <span class="tag-base">#</span>
+          <span class={group.subTags == null ? "tag-sub" : "tag-base"}
+            >{`${group.mainTag}${group.subTags != null ? "/" : ""}`}</span
+          >
+          {#if group.subTags != null}
+            <span class="tag-sub">{group.subTags}</span>
+          {/if}
+        {:else}
+          <span class="tag-base">All Tags</span>
         {/if}
-      {:else}
-        <span class="tag-base">All Tags</span>
-      {/if}
-    </div>
+      </div>
+    {/if}
     <div class="space" />
     <div class="count">{group.todos.length}</div>
-    <button class="collapse" on:click={() => onToggle(group.id)} title="Toggle Group">
+    <button
+      type="button"
+      class="collapse"
+      on:click={() => onToggle(group.id)}
+      title="Toggle Group"
+      aria-expanded={!isCollapsed}
+    >
       <Icon name="chevron" direction={isCollapsed ? "left" : "down"} />
     </button>
   </header>
@@ -97,6 +107,24 @@
     box-shadow: var(--checklist-buttonBoxShadow);
   }
 
+  .page-title {
+    display: block;
+    height: auto;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .page-title:focus-visible {
+    outline: 2px solid var(--checklist-accentColor);
+    outline-offset: 2px;
+  }
+
   .tag-base {
     color: var(--checklist-tagBaseColor);
   }
@@ -117,5 +145,6 @@
 
   .collapse {
     width: initial;
+    cursor: pointer;
   }
 </style>

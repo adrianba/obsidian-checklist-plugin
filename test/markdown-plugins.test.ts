@@ -44,7 +44,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('[[MyNote]]')).toBe(
-      '<a data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a>',
+      '<a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a>',
     )
   })
 
@@ -52,7 +52,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('[[MyNote|Alias]]')).toBe(
-      '<a data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
+      '<a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
     )
   })
 
@@ -60,7 +60,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.renderInline('[[ MyNote | Alias ]]')).toBe(
-      '<a data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
+      '<a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">Alias</a>',
     )
   })
 
@@ -74,7 +74,7 @@ describe('markdown render plugins', () => {
     const md = createRenderer()
 
     expect(md.render('#work ==text== [[MyNote]]')).toBe(
-      '<p><a href="#work" data-type="link" class="tag" target="_blank" rel="noopener">#work</a> <mark>text</mark> <a data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a></p>\n',
+      '<p><a href="#work" data-type="link" class="tag" target="_blank" rel="noopener">#work</a> <mark>text</mark> <a role="link" tabindex="0" data-href="MyNote" data-type="link" data-filepath="MyNote" class="internal-link">My Note</a></p>\n',
     )
   })
 })

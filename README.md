@@ -14,6 +14,8 @@ By default block of checklist items you tag with `#todo` will appear in this sid
 
 You can complete checklist items by checking them off in your editor (e.g. `- [ ]` -> `- [x]`) or by clicking a checklist item in the sidebar which will update your `.md` file for you
 
+Use Tab to focus the sidebar controls. Press Enter or Space on the completion, group-collapse, or tag-settings buttons. Page titles also open their files with Enter or Space; focused task text and embedded wiki links open with Enter. Hold Ctrl (Cmd on macOS) while opening a page title, task, or wiki link to use Obsidian's modifier navigation.
+
 ## Configuration
 
 ![screenshot-settings](https://raw.githubusercontent.com/delashum/obsidian-checklist-plugin/master/images/screenshot-settings.png)

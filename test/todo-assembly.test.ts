@@ -83,7 +83,7 @@ describe('formTodo', () => {
 
     expect(todo.checked).toBe(true)
     expect(todo.rawHTML).toContain(
-      '<a data-href="Project Note" data-type="link" data-filepath="Project Note" class="internal-link">Project Note</a>',
+      '<a role="link" tabindex="0" data-href="Project Note" data-type="link" data-filepath="Project Note" class="internal-link">Project Note</a>',
     )
     expect(todo.rawHTML).toContain('Review ')
   })

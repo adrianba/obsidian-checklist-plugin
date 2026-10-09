@@ -21,13 +21,17 @@
     on:input={() => onSearch(search)}
   />
   <div class="settings-container">
-    <Icon
-      name="settings"
-      style="button"
-      on:click={(ev) => {
+    <button
+      type="button"
+      class="settings-button"
+      aria-label="Show tags settings"
+      aria-expanded={showPopover}
+      on:click={() => {
         showPopover = !showPopover
       }}
-    />
+    >
+      <Icon name="settings" style="button" />
+    </button>
     {#if showPopover}
       <div
         use:clickOutside
@@ -95,6 +99,22 @@
     display: flex;
     align-items: center;
     position: relative;
+  }
+
+  .settings-button {
+    display: flex;
+    align-items: center;
+    height: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+  }
+
+  .settings-button:focus-visible {
+    outline: 2px solid var(--checklist-accentColor);
+    outline-offset: 2px;
   }
 
   .popover {
