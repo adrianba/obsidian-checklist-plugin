@@ -1,9 +1,9 @@
 {
-  "id": "obsidian-checklist-plugin",
-  "name": "Checklist",
+  "id": "obsidian-checklist-plugin-adrianba",
+  "name": "Checklist (adrianba)",
   "version": "3.1.0",
   "minAppVersion": "1.5.0",
   "description": "Organize tasks from your notes in a fast, native sidebar.",
-  "author": "delashum",
+  "author": "adrianba",
   "isDesktopOnly": false
 }

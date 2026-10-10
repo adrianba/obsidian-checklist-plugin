@@ -1,4 +1,4 @@
-# Checklist for Obsidian
+# Checklist (adrianba) for Obsidian
 
 This plugin brings checklists from across your notes into a single sidebar. Check things off, find the note they came from, and organize the list how you like.
 
@@ -6,7 +6,7 @@ This plugin brings checklists from across your notes into a single sidebar. Chec
 
 ## Usage
 
-Install **Checklist** from Obsidian’s community plugins and enable it. Open the sidebar from the ribbon or run **Checklist: Show Checklist pane** from the command palette. Requires Obsidian 1.5.0 or later.
+This fork appears as **Checklist (adrianba)** in Obsidian, separately from the upstream Checklist plugin. Install its files as described under Development and enable it. Open the sidebar from the ribbon or run **Checklist (adrianba): Show Checklist pane** from the command palette. Requires Obsidian 1.5.0 or later.
 
 By default, blocks of checklist items tagged with `#todo` appear in the sidebar:
 
@@ -20,13 +20,15 @@ A standalone tag applies until the next blank line. You can also tag individual 
 
 Check items off in your note or in the sidebar; both update the same Markdown file. Completed tasks stay visible for one second so you can uncheck an accidental click. Click the task text to jump to its source line.
 
+Unrecognized wiki links are displayed as escaped literal text, not interpreted as HTML.
+
 Use **All / Note** to switch scope, or search task text, note paths, and tags. Click an inline tag to search for it.
 
 Use Tab to focus sidebar controls. Press Enter or Space on buttons, or Space on task checkboxes. Group headings collapse or expand; the adjacent open-note button opens a page. Focused task text and embedded wiki links open with Enter. Hold Ctrl (Cmd on macOS) while opening a note, task, or wiki link to use Obsidian's modifier navigation.
 
 ## Configuration
 
-Open the sidebar’s **Display options** for everyday controls. Tag sources, file patterns, and integrations live in **Settings → Checklist**.
+Open the sidebar’s **Display options** for everyday controls. Tag sources, file patterns, and integrations live in **Settings → Checklist (adrianba)**.
 
 <img src="images/screenshot-settings.png" alt="Display options for grouping, sorting, task visibility, completion delay, and folder filtering" width="320">
 
@@ -36,7 +38,7 @@ Open the sidebar’s **Display options** for everyday controls. Tag sources, fil
 
 **Options:** Show sub-tasks, task counts, completed tasks, or source-note labels. **Show sub-tasks** includes children of tagged tasks and displays an expandable tree. Turn off **Delay completion** to hide completed tasks immediately.
 
-**Hide HTML Comments:** In **Settings → Checklist → Display**, enable this fork's opt-in setting to hide literal `<!-- ... -->` comments from displayed task text and accessible checkbox labels. It is off by default and preserves existing saved choices. Search still matches the original text, including comments; completing a task preserves its comments in the note. Obsidian `%%...%%` comments are rendered separately and do not depend on this setting.
+**Hide HTML Comments:** In **Settings → Checklist (adrianba) → Display**, enable this fork's opt-in setting to hide literal `<!-- ... -->` comments from displayed task text and accessible checkbox labels. It is off by default and preserves existing saved choices. Search still matches the original text, including comments; completing a task preserves its comments in the note. Obsidian `%%...%%` comments are rendered separately and do not depend on this setting.
 
 **Included / excluded tags:** One per line, with or without `#`. `todo/next` matches that tag and its descendants, but not `todo/next-week`. Leave Included tags empty to show all tasks. Excluded tags hide matching tasks and blocks; an excluded property tag hides the whole note.
 
@@ -75,8 +77,8 @@ npm test
 npm run build
 ```
 
-`npm run dev` watches source files. Copy `main.js`, `styles.css`, and `manifest.json` into a test vault’s `.obsidian/plugins/obsidian-checklist-plugin/` and reload Obsidian.
+`npm run dev` watches source files. Copy `main.js`, `styles.css`, and `manifest.json` into a test vault’s `.obsidian/plugins/obsidian-checklist-plugin-adrianba/` and reload Obsidian.
 
-`npm test` runs both the fork's Vitest suite (`npm run test:fork`) and the upstream Node regression suite (`npm run test:upstream`). `npm run test:watch` watches the Vitest tests.
+`npm test` uses Node's built-in test runner to discover the `tests/*.test.cjs` files, including upstream regressions and fork-specific coverage. Shared test helpers live in `tests/helpers/`. Run tests manually after changes; `test:watch` is no longer provided. `npm run dev` still watches and rebuilds the plugin.
 
 Thanks to [SeanYHan888](https://github.com/SeanYHan888) for the sub-task hierarchy work in [#213](https://github.com/delashum/obsidian-checklist-plugin/pull/213).

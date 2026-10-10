@@ -1,56 +1,6 @@
 const {test} = require('node:test')
 const assert = require('node:assert/strict')
-const {buildSync} = require('esbuild')
-const Module = require('module')
-const path = require('path')
-
-class TFile {
-  constructor(name, content) {
-    this.path = name
-    this.name = name
-    this.extension = 'md'
-    this.stat = {mtime: 10, ctime: 1}
-    this.content = content
-  }
-}
-class ItemView {
-  constructor(leaf) {
-    this.app = leaf.app
-  }
-  registerEvent() {}
-}
-const obsidian = {
-  TFile,
-  ItemView,
-  Notice: class {},
-  FuzzySuggestModal: class {},
-  Plugin: class {
-    onunload() {}
-  },
-  PluginSettingTab: class {},
-  parseFrontMatterTags: fm =>
-    (fm?.tags || []).map(t => (t.startsWith('#') ? t : '#' + t)),
-}
-function load(entry) {
-  const result = buildSync({
-    entryPoints: [entry],
-    bundle: true,
-    platform: 'node',
-    format: 'cjs',
-    write: false,
-    external: ['obsidian', '*.svelte'],
-  })
-  const m = new Module(path.resolve(entry))
-  m.paths = module.paths
-  m.require = id =>
-    id === 'obsidian'
-      ? obsidian
-      : id.endsWith('.svelte')
-      ? class {}
-      : require(id)
-  m._compile(result.outputFiles[0].text, path.resolve(entry))
-  return m.exports
-}
+const {TFile, obsidian, load} = require('./helpers/runtime.cjs')
 const {parseTodos, toggleTodoItem} = load('src/utils/tasks.ts')
 const View = load('src/view.ts').default
 function fixture(content = '#todo\n- [ ] task') {
@@ -700,6 +650,10 @@ test('wiki link attributes are escaped and links remain keyboard accessible', as
   assert.match(item.rawHTML, /href="#"/)
   assert.match(item.rawHTML, /data-filepath="Note"/)
   assert.match(item.rawHTML, />the note<\/a>/)
+  assert.equal(
+    item.rawHTML,
+    '<p>Read <a href="#" data-href="Note" data-type="link" data-filepath="Note" class="internal-link">the note</a></p>\n',
+  )
 })
 
 test('ungrouped tasks deduplicate tags, retain children, and honor task sorting', () => {

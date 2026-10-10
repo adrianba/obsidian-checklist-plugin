@@ -14,7 +14,7 @@ export const linkPlugin = (linkMap: Map<string, LinkMeta>) =>
     } else {
       displayText = link
     }
-    if (!linkItem) return `[[${content}]]`
+    if (!linkItem) return utils.escape(`[[${content}]]`)
     return `<a href="#" data-href="${utils.escape(
       link,
     )}" data-type="link" data-filepath="${utils.escape(

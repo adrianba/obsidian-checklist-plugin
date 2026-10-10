@@ -1,41 +1,34 @@
-import {readFile} from 'node:fs/promises'
-import {fileURLToPath} from 'node:url'
-import {createRequire} from 'node:module'
-import {runInNewContext} from 'node:vm'
-
-import {build} from 'esbuild'
-import {compile, preprocess} from 'svelte/compiler'
-import autoPreprocess from 'svelte-preprocess'
-import {beforeAll, describe, expect, it} from 'vitest'
-
-import type {TodoItem} from '../src/_types'
-import * as obsidian from './__mocks__/obsidian'
+const {readFile} = require('node:fs/promises')
+const path = require('node:path')
+const {runInNewContext} = require('node:vm')
+const {before, describe, it} = require('node:test')
+const assert = require('node:assert/strict')
+const {build} = require('esbuild')
+const {compile, preprocess} = require('svelte/compiler')
+const autoPreprocess = require('svelte-preprocess')
+const {obsidian} = require('./helpers/runtime.cjs')
 
 describe('Svelte accessibility warnings', () => {
-  it.each(['App', 'CheckCircle', 'ChecklistGroup', 'Icon', 'ChecklistItem', 'Header'])(
-    '%s compiles without accessibility warnings',
-    async name => {
-      const filename = fileURLToPath(
-        new URL(`../src/svelte/${name}.svelte`, import.meta.url),
-      )
+  for (const name of ['App', 'CheckCircle', 'ChecklistGroup', 'Icon', 'ChecklistItem', 'Header']) {
+    it(`${name} compiles without accessibility warnings`, async () => {
+      const filename = path.resolve(__dirname, `../src/svelte/${name}.svelte`)
       const source = await readFile(filename, 'utf8')
       const processed = await preprocess(source, autoPreprocess(), {filename})
       const {warnings} = compile(processed.code, {filename, css: true})
 
-      expect(
+      assert.deepEqual(
         warnings.filter(warning => warning.code.startsWith('a11y-')),
-      ).toEqual([])
-    },
-  )
+        [],
+      )
+    })
+  }
 })
 
 describe('accessible task labels', () => {
-  let component: {render: (props: Record<string, unknown>) => {html: string}}
+  let component
 
-  beforeAll(async () => {
-    const filename = fileURLToPath(
-      new URL('../src/svelte/ChecklistItem.svelte', import.meta.url),
-    )
+  before(async () => {
+    const filename = path.resolve(__dirname, '../src/svelte/ChecklistItem.svelte')
     const result = await build({
       entryPoints: [filename],
       bundle: true,
@@ -55,18 +48,17 @@ describe('accessible task labels', () => {
         },
       }],
     })
-    const module: {exports: {default?: typeof component}} = {exports: {}}
-    const require = createRequire(import.meta.url)
+    const module = {exports: {}}
     runInNewContext(result.outputFiles[0].text, {
       module,
       exports: module.exports,
-      require: (id: string) => id === 'obsidian' ? obsidian : require(id),
+      require: id => id === 'obsidian' ? obsidian : require(id),
     })
     if (!module.exports.default) throw new Error('Missing compiled task component')
     component = module.exports.default
   })
 
-  const item = (displayText: string, children: TodoItem[] = []): TodoItem => ({
+  const item = (displayText, children = []) => ({
     checked: false,
     filePath: 'note.md',
     fileName: 'note.md',
@@ -84,22 +76,22 @@ describe('accessible task labels', () => {
 
   it('uses display text, not unstripped source text, for the checkbox label', () => {
     const {html} = component.render({item: item('visible text')})
-    expect(html).toContain('Complete: visible text')
-    expect(html).not.toContain('private')
-    expect(html).toContain('role="link"')
-    expect(html).toContain('tabindex="0"')
+    assert.ok(html.includes('Complete: visible text'))
+    assert.ok(!html.includes('private'))
+    assert.ok(html.includes('role="link"'))
+    assert.ok(html.includes('tabindex="0"'))
   })
 
   it('retains comments in accessible labels when hiding is disabled', () => {
     const {html} = component.render({item: item('visible <!-- private --> text')})
-    expect(html).toContain('Complete: visible &lt;!-- private --> text')
+    assert.ok(html.includes('Complete: visible &lt;!-- private --> text'))
   })
 
   it('uses safe display labels for nested children too', () => {
     const child = {...item('child text'), line: 1, parentLine: 0}
     const {html} = component.render({item: item('parent text', [child])})
-    expect(html).toContain('Complete: parent text')
-    expect(html).toContain('Complete: child text')
-    expect(html).not.toContain('private')
+    assert.ok(html.includes('Complete: parent text'))
+    assert.ok(html.includes('Complete: child text'))
+    assert.ok(!html.includes('private'))
   })
 })

@@ -1,39 +1,28 @@
-import {describe, it, expect} from 'vitest'
-
-import {groupTodos} from '../src/utils/groups'
-
-import type {TodoItem, SortDirection} from '../src/_types'
-
+const assert = require('node:assert/strict')
+const {load} = require('./helpers/runtime.cjs')
+const {assertFields} = require('./helpers/assert-fields.cjs')
+const {describe, it} = require('node:test')
+const {groupTodos} = load('src/utils/groups.ts')
 let nextLine = 0
-const todo = (overrides: Partial<TodoItem>): TodoItem =>
-  ({
-    checked: false,
-    filePath: 'notes/default.md',
-    fileName: 'default.md',
-    fileLabel: 'Default',
-    fileModifiedTs: 1,
-    filterTags: ['work'],
-    sourceLine: '- [ ] default todo',
-    children: [],
-    line: nextLine++,
-    mainTag: 'work',
-    subTag: undefined,
-    fileCreatedTs: 1,
-    originalText: 'default todo',
-    displayText: 'default todo',
-    rawHTML: '<p>default todo</p>\n',
-    ...overrides,
-  })
-
-const group = (
-  items: TodoItem[],
-  groupBy: 'page' | 'tag',
-  sortGroups: SortDirection = 'a->z',
-  sortItems: SortDirection = 'a->z',
-  subGroups = false,
-  subGroupSort: SortDirection = 'a->z',
-) => groupTodos(items, groupBy, sortGroups, sortItems, subGroups, subGroupSort)
-
+const todo = (overrides) => ({
+  checked: false,
+  filePath: 'notes/default.md',
+  fileName: 'default.md',
+  fileLabel: 'Default',
+  fileModifiedTs: 1,
+  filterTags: ['work'],
+  sourceLine: '- [ ] default todo',
+  children: [],
+  line: nextLine++,
+  mainTag: 'work',
+  subTag: undefined,
+  fileCreatedTs: 1,
+  originalText: 'default todo',
+  displayText: 'default todo',
+  rawHTML: '<p>default todo</p>\n',
+  ...overrides,
+})
+const group = (items, groupBy, sortGroups = 'a->z', sortItems = 'a->z', subGroups = false, subGroupSort = 'a->z') => groupTodos(items, groupBy, sortGroups, sortItems, subGroups, subGroupSort)
 describe('groupTodos', () => {
   it('groups todos by page with page metadata and merged todos', () => {
     const items = [
@@ -56,12 +45,10 @@ describe('groupTodos', () => {
         originalText: 'gamma task',
       }),
     ]
-
     const groups = group(items, 'page')
-
-    expect(groups).toHaveLength(2)
-    expect(groups.map(g => g.id)).toEqual(['notes/alpha.md', 'notes/beta.md'])
-    expect(groups[0]).toMatchObject({
+    assert.equal(groups.length, 2)
+    assert.deepEqual(groups.map(g => g.id), ['notes/alpha.md', 'notes/beta.md'])
+    assertFields(groups[0], {
       type: 'page',
       pageName: 'Alpha Page',
       sortName: 'Alpha Page',
@@ -69,11 +56,11 @@ describe('groupTodos', () => {
       oldestItem: 100,
       newestItem: 200,
     })
-    expect(groups[0].todos.map(t => t.originalText)).toEqual([
+    assert.deepEqual(groups[0].todos.map(t => t.originalText), [
       'alpha task',
       'beta task',
     ])
-    expect(groups[1]).toMatchObject({
+    assertFields(groups[1], {
       type: 'page',
       pageName: 'Beta Page',
       sortName: 'Beta Page',
@@ -82,7 +69,6 @@ describe('groupTodos', () => {
       newestItem: 50,
     })
   })
-
   it('groups todos by tag using #main/sub ids and tag metadata', () => {
     const items = [
       todo({mainTag: 'work', subTag: 'urgent', originalText: 'second'}),
@@ -90,53 +76,48 @@ describe('groupTodos', () => {
       todo({mainTag: 'home', subTag: 'chores', originalText: 'first'}),
       todo({mainTag: 'work', subTag: 'urgent', originalText: 'first'}),
     ]
-
     const groups = group(items, 'tag')
-
-    expect(groups.map(g => g.id)).toEqual(['#home/chores', '#work', '#work/urgent'])
-    expect(groups[0]).toMatchObject({
+    assert.deepEqual(groups.map(g => g.id), ['#home/chores', '#work', '#work/urgent'])
+    assertFields(groups[0], {
       type: 'tag',
       mainTag: 'home',
       subTags: 'chores',
       sortName: '#home/chores',
       className: 'homechores',
     })
-    expect(groups[1]).toMatchObject({
+    assertFields(groups[1], {
       type: 'tag',
       mainTag: 'work',
       subTags: undefined,
       sortName: '#work',
       className: 'work',
     })
-    expect(groups[2]).toMatchObject({
+    assertFields(groups[2], {
       type: 'tag',
       mainTag: 'work',
       subTags: 'urgent',
       sortName: '#work/urgent',
       className: 'workurgent',
     })
-    expect(groups[2].todos.map(t => t.originalText)).toEqual(['first', 'second'])
+    assert.deepEqual(groups[2].todos.map(t => t.originalText), ['first', 'second'])
   })
-
   it('sorts groups a->z and z->a by sortName', () => {
     const items = [
       todo({filePath: 'c.md', fileLabel: 'Charlie'}),
       todo({filePath: 'a.md', fileLabel: 'Alpha'}),
       todo({filePath: 'b.md', fileLabel: 'Bravo'}),
     ]
-
-    expect(group(items, 'page', 'a->z').map(g => g.sortName)).toEqual([
+    assert.deepEqual(group(items, 'page', 'a->z').map(g => g.sortName), [
       'Alpha',
       'Bravo',
       'Charlie',
     ])
-    expect(group(items, 'page', 'z->a').map(g => g.sortName)).toEqual([
+    assert.deepEqual(group(items, 'page', 'z->a').map(g => g.sortName), [
       'Charlie',
       'Bravo',
       'Alpha',
     ])
   })
-
   it('sorts groups new->old by newest item and old->new by oldest item', () => {
     const items = [
       todo({filePath: 'a.md', fileLabel: 'Alpha', fileCreatedTs: 1}),
@@ -146,38 +127,30 @@ describe('groupTodos', () => {
       todo({filePath: 'c.md', fileLabel: 'Charlie', fileCreatedTs: 5}),
       todo({filePath: 'c.md', fileLabel: 'Charlie', fileCreatedTs: 20}),
     ]
-
-    expect(group(items, 'page', 'new->old').map(g => g.id)).toEqual([
+    assert.deepEqual(group(items, 'page', 'new->old').map(g => g.id), [
       'b.md',
       'c.md',
       'a.md',
     ])
-    expect(group(items, 'page', 'old->new').map(g => g.id)).toEqual([
+    assert.deepEqual(group(items, 'page', 'old->new').map(g => g.id), [
       'a.md',
       'c.md',
       'b.md',
     ])
   })
-
   it('sorts items within a group by originalText or fileCreatedTs', () => {
     const items = [
       todo({fileCreatedTs: 100, originalText: 'bravo'}),
       todo({fileCreatedTs: 300, originalText: 'alpha'}),
       todo({fileCreatedTs: 200, originalText: 'charlie'}),
     ]
-
-    expect(group(items, 'page', 'a->z', 'a->z')[0].todos.map(t => t.originalText)).toEqual([
+    assert.deepEqual(group(items, 'page', 'a->z', 'a->z')[0].todos.map(t => t.originalText), [
       'alpha',
       'bravo',
       'charlie',
     ])
-    expect(
-      group(items, 'page', 'a->z', 'new->old')[0].todos.map(
-        t => t.fileCreatedTs,
-      ),
-    ).toEqual([300, 200, 100])
+    assert.deepEqual(group(items, 'page', 'a->z', 'new->old')[0].todos.map(t => t.fileCreatedTs), [300, 200, 100])
   })
-
   it('creates nested groups with the opposite groupBy when subGroups is true', () => {
     const items = [
       todo({
@@ -202,38 +175,29 @@ describe('groupTodos', () => {
         originalText: 'other page',
       }),
     ]
-
     const pageGroups = group(items, 'page', 'a->z', 'a->z', true, 'a->z')
-
-    expect(pageGroups[0]).toMatchObject({id: 'alpha.md', type: 'page'})
-    expect(pageGroups[0].groups?.map(g => ({id: g.id, type: g.type}))).toEqual([
+    assertFields(pageGroups[0], {id: 'alpha.md', type: 'page'})
+    assert.deepEqual(pageGroups[0].groups?.map(g => ({id: g.id, type: g.type})), [
       {id: JSON.stringify(['alpha.md', 'tag', '#home']), type: 'tag'},
       {id: JSON.stringify(['alpha.md', 'tag', '#work/urgent']), type: 'tag'},
     ])
-    expect(pageGroups[0].groups?.[1].todos.map(t => t.originalText)).toEqual([
+    assert.deepEqual(pageGroups[0].groups?.[1].todos.map(t => t.originalText), [
       'work urgent',
     ])
-
     const tagGroups = group(items, 'tag', 'a->z', 'a->z', true, 'a->z')
     const workUrgent = tagGroups.find(g => g.id === '#work/urgent')
-    expect(workUrgent?.groups?.map(g => ({id: g.id, type: g.type}))).toEqual([
+    assert.deepEqual(workUrgent?.groups?.map(g => ({id: g.id, type: g.type})), [
       {id: JSON.stringify(['#work/urgent', 'page', 'alpha.md']), type: 'page'},
       {id: JSON.stringify(['#work/urgent', 'page', 'beta.md']), type: 'page'},
     ])
   })
-
   it('returns only groups that contain todos', () => {
-    expect(group([], 'page')).toEqual([])
-
-    const groups = group(
-      [
-        todo({filePath: 'alpha.md', fileLabel: 'Alpha'}),
-        todo({filePath: 'beta.md', fileLabel: 'Beta'}),
-      ],
-      'page',
-    )
-
-    expect(groups).not.toHaveLength(0)
-    expect(groups.every(g => g.todos.length > 0)).toBe(true)
+    assert.deepEqual(group([], 'page'), [])
+    const groups = group([
+      todo({filePath: 'alpha.md', fileLabel: 'Alpha'}),
+      todo({filePath: 'beta.md', fileLabel: 'Beta'}),
+    ], 'page')
+    assert.notEqual(groups.length, 0)
+    assert.equal(groups.every(g => g.todos.length > 0), true)
   })
 })
